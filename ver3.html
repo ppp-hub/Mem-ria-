@@ -1,0 +1,1228 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Prensa Hidráulica</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background: #0a0a0a;
+            color: #ffffff;
+            font-family: 'Courier New', monospace;
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            display: flex;
+            gap: 30px;
+            width: 100%;
+            max-width: 1200px;
+        }
+
+        .main-content {
+            flex: 1;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 40px;
+            position: relative;
+        }
+
+        .header h1 {
+            font-size: 24px;
+            font-weight: 300;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+        }
+
+        .info-toggle {
+            position: absolute;
+            right: 0;
+            top: 50%;
+            transform: translateY(-50%);
+            background: #222222;
+            border: 1px solid #444444;
+            color: #ffffff;
+            padding: 8px 16px;
+            font-size: 11px;
+            font-family: 'Courier New', monospace;
+            cursor: pointer;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            transition: all 0.2s;
+        }
+
+        .info-toggle:hover {
+            background: #333333;
+            border-color: #555555;
+        }
+
+        .press-wrapper {
+            background: #111111;
+            border: 2px solid #333333;
+            padding: 30px;
+            margin-bottom: 30px;
+            position: relative;
+        }
+
+        .press-top {
+            background: linear-gradient(180deg, #1a1a1a 0%, #0a0a0a 100%);
+            border: 3px solid #222222;
+            height: 40px;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+            color: #666666;
+            letter-spacing: 1px;
+            position: relative;
+            overflow: visible;
+            transition: transform 0.1s ease-out;
+            transform: translateY(0px);
+            z-index: 10;
+        }
+
+        .press-top::before,
+        .press-top::after {
+            content: '';
+            position: absolute;
+            width: 60%;
+            height: 2px;
+            background: #333333;
+        }
+
+        .press-top::before {
+            top: 12px;
+        }
+
+        .press-top::after {
+            bottom: 12px;
+        }
+
+        .image-container {
+            position: relative;
+            background: #050505;
+            border: 1px solid #222222;
+            min-height: 250px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+        }
+
+        .image-display {
+            width: 100%;
+            height: 250px;
+            object-fit: contain;
+            transition: height 0.1s ease-out;
+        }
+
+        .base64-wrapper {
+            display: none;
+            width: 100%;
+            height: 100%;
+            align-items: center;
+            justify-content: center;
+            flex-direction: row;
+            gap: 12px;
+            padding: 15px;
+            flex-wrap: nowrap;
+        }
+
+        .base64-wrapper.active {
+            display: flex;
+        }
+
+        .base64-display {
+            flex: 1;
+            height: 60px;
+            padding: 12px;
+            overflow-y: auto;
+            font-size: 6px;
+            line-height: 1.1;
+            color: #444444;
+            word-break: break-all;
+            background: #050505;
+            border: 1px solid #222222;
+        }
+
+        .copy-btn {
+            padding: 8px 12px;
+            background: #222222;
+            border: 1px solid #444444;
+            color: #ffffff;
+            font-size: 11px;
+            font-family: 'Courier New', monospace;
+            letter-spacing: 1px;
+            cursor: pointer;
+            transition: all 0.2s;
+            text-transform: uppercase;
+            white-space: nowrap;
+            flex-shrink: 0;
+            height: 60px;
+            display: flex;
+            align-items: center;
+        }
+
+        .copy-btn:hover {
+            background: #333333;
+            border-color: #555555;
+        }
+
+        .copy-btn.copied {
+            background: #1a3a1a;
+            border-color: #2d5a2d;
+            color: #88ff88;
+        }
+
+        .press-bottom {
+            background: linear-gradient(180deg, #0a0a0a 0%, #1a1a1a 100%);
+            border: 3px solid #222222;
+            height: 40px;
+            margin-top: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+            color: #666666;
+            letter-spacing: 1px;
+            position: relative;
+            overflow: hidden;
+            transition: transform 0.1s ease-out;
+            transform: translateY(0px);
+            z-index: 10;
+        }
+
+        .press-bottom::before,
+        .press-bottom::after {
+            content: '';
+            position: absolute;
+            width: 60%;
+            height: 2px;
+            background: #333333;
+        }
+
+        .press-bottom::before {
+            top: 12px;
+        }
+
+        .press-bottom::after {
+            bottom: 12px;
+        }
+
+        .controls {
+            margin-bottom: 30px;
+        }
+
+        .control-group {
+            margin-bottom: 20px;
+        }
+
+        .control-label {
+            display: block;
+            font-size: 12px;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            color: #888888;
+            margin-bottom: 10px;
+        }
+
+        input[type="range"],
+        textarea {
+            width: 100%;
+            padding: 10px;
+            background: #111111;
+            border: 1px solid #333333;
+            color: #ffffff;
+            font-family: 'Courier New', monospace;
+        }
+
+        textarea {
+            resize: vertical;
+            min-height: 80px;
+            font-size: 11px;
+        }
+
+        input[type="range"] {
+            padding: 0;
+            cursor: pointer;
+            height: 30px;
+            -webkit-appearance: none;
+            appearance: none;
+        }
+
+        input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 20px;
+            height: 20px;
+            background: #ffffff;
+            border: 1px solid #666666;
+            cursor: pointer;
+        }
+
+        input[type="range"]::-moz-range-thumb {
+            width: 20px;
+            height: 20px;
+            background: #ffffff;
+            border: 1px solid #666666;
+            cursor: pointer;
+        }
+
+        .pressure-value {
+            text-align: right;
+            font-size: 12px;
+            color: #666666;
+            margin-top: 8px;
+            letter-spacing: 1px;
+        }
+
+        .info {
+            font-size: 11px;
+            color: #555555;
+            text-align: center;
+            line-height: 1.6;
+            margin-top: 20px;
+        }
+
+        .info p {
+            margin-bottom: 5px;
+        }
+
+        /* Painel de informações lateral */
+        .info-panel {
+            width: 250px;
+            background: #111111;
+            border: 2px solid #333333;
+            padding: 20px;
+            height: fit-content;
+            position: sticky;
+            top: 20px;
+            display: none;
+        }
+
+        .info-panel.active {
+            display: block;
+        }
+
+        .info-panel h2 {
+            font-size: 12px;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            color: #888888;
+            margin-bottom: 15px;
+            border-bottom: 1px solid #333333;
+            padding-bottom: 10px;
+        }
+
+        .info-item {
+            margin-bottom: 12px;
+            font-size: 10px;
+            line-height: 1.4;
+        }
+
+        .info-label {
+            color: #666666;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            display: block;
+            margin-bottom: 3px;
+        }
+
+        .info-value {
+            color: #ffffff;
+            font-family: 'Courier New', monospace;
+            word-break: break-all;
+        }
+
+        /* Conversor Base64 */
+        .converter-section {
+            margin-top: 25px;
+            padding-top: 20px;
+            border-top: 1px solid #333333;
+        }
+
+        .converter-section h3 {
+            font-size: 11px;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            color: #888888;
+            margin-bottom: 12px;
+        }
+
+        .converter-input {
+            margin-bottom: 12px;
+        }
+
+        .converter-btn {
+            width: 100%;
+            padding: 10px;
+            background: #222222;
+            border: 1px solid #444444;
+            color: #ffffff;
+            font-size: 11px;
+            font-family: 'Courier New', monospace;
+            cursor: pointer;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 12px;
+        }
+
+        .converter-btn:hover {
+            background: #333333;
+            border-color: #555555;
+        }
+
+        .converter-result {
+            display: none;
+            margin-top: 12px;
+        }
+
+        .converter-result.active {
+            display: block;
+        }
+
+        .converted-image {
+            max-width: 100%;
+            max-height: 150px;
+            border: 1px solid #333333;
+            margin-top: 8px;
+        }
+
+        /* Prensa Reversa */
+        .reverse-press {
+            margin-top: 40px;
+        }
+
+        .reverse-press .press-top {
+            margin-bottom: 10px;
+        }
+
+        .reverse-press .press-bottom {
+            margin-top: 10px;
+        }
+
+        .reverse-press .image-container {
+            background: #0a0a0a;
+        }
+
+        .reverse-controls {
+            margin-top: 20px;
+            display: flex;
+            gap: 10px;
+        }
+
+        .mode-toggle {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .mode-btn {
+            flex: 1;
+            padding: 10px;
+            background: #111111;
+            border: 1px solid #333333;
+            color: #888888;
+            font-size: 11px;
+            font-family: 'Courier New', monospace;
+            cursor: pointer;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            transition: all 0.2s;
+        }
+
+        .mode-btn.active {
+            background: #222222;
+            border-color: #555555;
+            color: #ffffff;
+        }
+
+        /* Galeria de Imagens */
+        .image-gallery {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .gallery-item {
+            cursor: pointer;
+            border: 2px solid #333333;
+            transition: all 0.2s;
+            overflow: hidden;
+        }
+
+        .gallery-item:hover {
+            border-color: #555555;
+        }
+
+        .gallery-item.active {
+            border-color: #ffffff;
+        }
+
+        .gallery-image {
+            width: 100%;
+            height: 120px;
+            object-fit: cover;
+        }
+
+        .gallery-caption {
+            padding: 8px;
+            background: #111111;
+            text-align: center;
+            font-size: 10px;
+            color: #888888;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 10px;
+            margin-top: 15px;
+        }
+
+        .action-btn {
+            flex: 1;
+            padding: 10px;
+            background: #222222;
+            border: 1px solid #444444;
+            color: #ffffff;
+            font-size: 11px;
+            font-family: 'Courier New', monospace;
+            cursor: pointer;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            transition: all 0.2s;
+        }
+
+        .action-btn:hover {
+            background: #333333;
+            border-color: #555555;
+        }
+
+        .action-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .action-btn.decompress {
+            background: #1a3a1a;
+            border-color: #2d5a2d;
+        }
+
+        .action-btn.decompress:hover:not(:disabled) {
+            background: #2d5a2d;
+            border-color: #3d7a3d;
+        }
+
+        .action-btn.compress-again {
+            background: #3a1a1a;
+            border-color: #5a2d2d;
+        }
+
+        .action-btn.compress-again:hover:not(:disabled) {
+            background: #5a2d2d;
+            border-color: #7a3d3d;
+        }
+
+        .cycle-counter {
+            text-align: center;
+            font-size: 10px;
+            color: #666666;
+            margin-top: 10px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                flex-direction: column;
+            }
+
+            .info-panel {
+                width: 100%;
+                position: static;
+            }
+
+            .image-gallery {
+                grid-template-columns: 1fr;
+            }
+
+            .reverse-controls {
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="main-content">
+            <div class="header">
+                <h1>PRENSA HIDRÁULICA</h1>
+                <button class="info-toggle" id="infoToggle">informações</button>
+            </div>
+
+            <div class="mode-toggle">
+                <button class="mode-btn active" id="compressMode">Comprimir</button>
+                <button class="mode-btn" id="decompressMode">Descomprimir</button>
+            </div>
+
+            <!-- Prensa de Compressão -->
+            <div class="press-section" id="compressSection">
+                <div class="controls">
+                    <div class="control-group">
+                        <label class="control-label">Selecionar Imagem</label>
+                        <div class="image-gallery" id="imageGallery">
+                            <!-- Imagens serão adicionadas via JavaScript -->
+                        </div>
+                    </div>
+
+                    <div class="control-group">
+                        <label class="control-label">Pressão</label>
+                        <input type="range" id="pressureSlider" min="0" max="100" value="0">
+                        <div class="pressure-value"><span id="pressureValue">0</span>%</div>
+                    </div>
+                </div>
+
+                <div class="press-wrapper">
+                    <div class="press-top" id="pressTop">⚙ {=============} ⚙</div>
+
+                    <div class="image-container">
+                        <img class="image-display" id="imageDisplay" src="/placeholder.svg?height=250&width=400" alt="Imagem para ser esmagada">
+                        <div class="base64-wrapper" id="base64Wrapper">
+                            <div class="base64-display" id="base64Display"></div>
+                            <button class="copy-btn" id="copyBtn">copiar</button>
+                        </div>
+                    </div>
+
+                    <div class="press-bottom" id="pressBottom">⚙ {=============} ⚙</div>
+                </div>
+
+                <div class="action-buttons">
+                    <button class="action-btn decompress" id="decompressBtn" disabled>Descomprimir</button>
+                </div>
+                <div class="cycle-counter">Ciclo de Compressão: <span id="compressCycle">1</span></div>
+            </div>
+
+            <!-- Prensa de Descompressão -->
+            <div class="reverse-press" id="decompressSection" style="display: none;">
+                <div class="controls">
+                    <div class="control-group">
+                        <label class="control-label">Base64 da Imagem Comprimida</label>
+                        <textarea id="base64Input" placeholder="Cole o código Base64 da imagem comprimida..."></textarea>
+                    </div>
+
+                    <div class="control-group">
+                        <label class="control-label">Força de Esticamento</label>
+                        <input type="range" id="stretchSlider" min="0" max="100" value="100">
+                        <div class="pressure-value"><span id="stretchValue">100</span>%</div>
+                    </div>
+                </div>
+
+                <div class="press-wrapper">
+                    <div class="press-top" id="reversePressTop">⚙ {=============} ⚙</div>
+
+                    <div class="image-container">
+                        <img class="image-display" id="stretchedImageDisplay" src="/placeholder.svg?height=250&width=400" alt="Imagem para ser esticada">
+                    </div>
+
+                    <div class="press-bottom" id="reversePressBottom">⚙ {=============} ⚙</div>
+                </div>
+
+                <div class="reverse-controls">
+                    <button class="action-btn compress-again" id="compressAgainBtn">Comprimir Novamente</button>
+                    <button class="converter-btn" id="downloadBtn">Baixar Imagem</button>
+                </div>
+                <div class="cycle-counter">Ciclo de Descompressão: <span id="decompressCycle">1</span></div>
+            </div>
+        </div>
+
+        <!-- Painel lateral com informações em tempo real -->
+        <div class="info-panel" id="infoPanel">
+            <h2>Dados em Tempo Real</h2>
+            
+            <div class="info-item">
+                <span class="info-label">Qualidade JPEG</span>
+                <span class="info-value" id="qualityValue">—</span>
+            </div>
+
+            <div class="info-item">
+                <span class="info-label">Dimensões</span>
+                <span class="info-value" id="dimensionsValue">—</span>
+            </div>
+
+            <div class="info-item">
+                <span class="info-label">Altura Atual</span>
+                <span class="info-value" id="heightValue">—</span>
+            </div>
+
+            <div class="info-item">
+                <span class="info-label">Tamanho Base64</span>
+                <span class="info-value" id="sizeValue">—</span>
+            </div>
+
+            <div class="info-item">
+                <span class="info-label">Compressão</span>
+                <span class="info-value" id="compressionValue">—</span>
+            </div>
+
+            <div class="info-item">
+                <span class="info-label">Tipo Arquivo</span>
+                <span class="info-value" id="fileTypeValue">—</span>
+            </div>
+
+            <div class="info-item">
+                <span class="info-label">Resolução Saída</span>
+                <span class="info-value" id="outputResValue">—</span>
+            </div>
+
+            <div class="info-item">
+                <span class="info-label">Ciclo Atual</span>
+                <span class="info-value" id="currentCycleValue">—</span>
+            </div>
+
+            <!-- Prensa Reversa Info -->
+            <div class="converter-section" id="reverseInfo">
+                <h3>Prensa Reversa</h3>
+                
+                <div class="info-item">
+                    <span class="info-label">Altura Original</span>
+                    <span class="info-value" id="originalHeightValue">—</span>
+                </div>
+
+                <div class="info-item">
+                    <span class="info-label">Altura Esticada</span>
+                    <span class="info-value" id="stretchedHeightValue">—</span>
+                </div>
+
+                <div class="info-item">
+                    <span class="info-label">Fator de Esticamento</span>
+                    <span class="info-value" id="stretchFactorValue">—</span>
+                </div>
+
+                <div class="info-item">
+                    <span class="info-label">Qualidade Esticamento</span>
+                    <span class="info-value" id="stretchQualityValue">—</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Elementos da Prensa de Compressão
+        const pressureSlider = document.getElementById('pressureSlider');
+        const pressureValue = document.getElementById('pressureValue');
+        const imageDisplay = document.getElementById('imageDisplay');
+        const base64Display = document.getElementById('base64Display');
+        const base64Wrapper = document.getElementById('base64Wrapper');
+        const pressTop = document.getElementById('pressTop');
+        const pressBottom = document.getElementById('pressBottom');
+        const copyBtn = document.getElementById('copyBtn');
+        const decompressBtn = document.getElementById('decompressBtn');
+        const imageGallery = document.getElementById('imageGallery');
+        const compressCycleEl = document.getElementById('compressCycle');
+
+        // Elementos da Prensa Reversa
+        const base64Input = document.getElementById('base64Input');
+        const stretchSlider = document.getElementById('stretchSlider');
+        const stretchValue = document.getElementById('stretchValue');
+        const stretchedImageDisplay = document.getElementById('stretchedImageDisplay');
+        const reversePressTop = document.getElementById('reversePressTop');
+        const reversePressBottom = document.getElementById('reversePressBottom');
+        const downloadBtn = document.getElementById('downloadBtn');
+        const compressAgainBtn = document.getElementById('compressAgainBtn');
+        const decompressCycleEl = document.getElementById('decompressCycle');
+
+        // Elementos de modo
+        const compressMode = document.getElementById('compressMode');
+        const decompressMode = document.getElementById('decompressMode');
+        const compressSection = document.getElementById('compressSection');
+        const decompressSection = document.getElementById('decompressSection');
+
+        // Elementos do painel de informações
+        const infoToggle = document.getElementById('infoToggle');
+        const infoPanel = document.getElementById('infoPanel');
+        const qualityValueEl = document.getElementById('qualityValue');
+        const dimensionsValueEl = document.getElementById('dimensionsValue');
+        const heightValueEl = document.getElementById('heightValue');
+        const sizeValueEl = document.getElementById('sizeValue');
+        const compressionValueEl = document.getElementById('compressionValue');
+        const fileTypeValueEl = document.getElementById('fileTypeValue');
+        const outputResValueEl = document.getElementById('outputResValue');
+        const originalHeightValue = document.getElementById('originalHeightValue');
+        const stretchedHeightValue = document.getElementById('stretchedHeightValue');
+        const stretchFactorValue = document.getElementById('stretchFactorValue');
+        const stretchQualityValue = document.getElementById('stretchQualityValue');
+        const currentCycleValue = document.getElementById('currentCycleValue');
+
+        // Variáveis de estado
+        let originalImage = null;
+        let originalFileName = '';
+        let compressedBase64 = null;
+        let originalFileSize = 0;
+        let stretchedImage = null;
+        let originalStretchedHeight = 0;
+        let currentGalleryItem = null;
+        let lastCompressedBase64 = null;
+        let compressCycle = 1;
+        let decompressCycle = 1;
+        let currentCycle = 1;
+
+        // Imagens pré-selecionadas
+        const galleryImages = [
+            {
+                src: "https://raw.githubusercontent.com/ppp-hub/Mem-ria-/refs/heads/main/aerea_sirius_fev20_creditos_divulgacao_cnpem.jpg",
+                caption: "Acelerador de Partículas Sirius - 68 mil metros quadrados, aproximadamente 10 campos de futebol "
+            },
+            {
+                src: "https://raw.githubusercontent.com/ppp-hub/Mem-ria-/refs/heads/main/largerest_data_center_in_the_world_5-(2).png",
+                caption: "Range International Information Group em Langfang, China, mais de 5,7 milhões de metros - aproximadamente 82 campos de futebol"
+            },
+            {
+                src: "https://raw.githubusercontent.com/ppp-hub/Mem-ria-/refs/heads/main/d26a75c8-7e63-4a1a-8040-0465fb0efef1_5712x3567.jpg",
+                caption: "El Capitan - Supercomputador - aproximadamente 700 m², composto por cerca de 87 racks de computação e é  maior que um prédio de dois andares. "
+            }
+        ];
+
+        // Inicializar galeria de imagens
+        function initImageGallery() {
+            galleryImages.forEach((image, index) => {
+                const galleryItem = document.createElement('div');
+                galleryItem.className = 'gallery-item';
+                galleryItem.dataset.index = index;
+                
+                const img = document.createElement('img');
+                img.className = 'gallery-image';
+                img.src = image.src;
+                img.alt = image.caption;
+                
+                const caption = document.createElement('div');
+                caption.className = 'gallery-caption';
+                caption.textContent = image.caption;
+                
+                galleryItem.appendChild(img);
+                galleryItem.appendChild(caption);
+                
+                galleryItem.addEventListener('click', () => {
+                    // Remover classe ativa do item anterior
+                    if (currentGalleryItem) {
+                        currentGalleryItem.classList.remove('active');
+                    }
+                    
+                    // Adicionar classe ativa ao item atual
+                    galleryItem.classList.add('active');
+                    currentGalleryItem = galleryItem;
+                    
+                    // Resetar ciclos quando selecionar nova imagem
+                    compressCycle = 1;
+                    decompressCycle = 1;
+                    currentCycle = 1;
+                    compressCycleEl.textContent = compressCycle;
+                    decompressCycleEl.textContent = decompressCycle;
+                    currentCycleValue.textContent = currentCycle;
+                    
+                    // Carregar imagem selecionada
+                    loadSelectedImage(image.src, image.caption);
+                });
+                
+                imageGallery.appendChild(galleryItem);
+                
+                // Selecionar a primeira imagem por padrão
+                if (index === 0) {
+                    galleryItem.classList.add('active');
+                    currentGalleryItem = galleryItem;
+                    loadSelectedImage(image.src, image.caption);
+                }
+            });
+        }
+
+        // Carregar imagem selecionada
+        function loadSelectedImage(src, caption) {
+            originalImage = new Image();
+            originalImage.crossOrigin = "anonymous";
+            originalImage.onload = function() {
+                originalFileName = caption;
+                originalFileSize = 0; // Não temos o tamanho real do arquivo para imagens da web
+                fileTypeValueEl.textContent = 'image/jpeg';
+                dimensionsValueEl.textContent = `${originalImage.width} × ${originalImage.height}px`;
+                updateImage(0);
+                pressureSlider.value = 0;
+                pressureValue.textContent = '0';
+                pressTop.style.transform = 'translateY(0px)';
+                pressBottom.style.transform = 'translateY(0px)';
+                
+                // Desabilitar botão de descompressão
+                decompressBtn.disabled = true;
+            };
+            originalImage.onerror = function() {
+                alert('Erro ao carregar a imagem selecionada.');
+            };
+            originalImage.src = src;
+        }
+
+        // Alternar entre modos
+        compressMode.addEventListener('click', function() {
+            compressMode.classList.add('active');
+            decompressMode.classList.remove('active');
+            compressSection.style.display = 'block';
+            decompressSection.style.display = 'none';
+            currentCycleValue.textContent = `Compressão ${currentCycle}`;
+        });
+
+        decompressMode.addEventListener('click', function() {
+            decompressMode.classList.add('active');
+            compressMode.classList.remove('active');
+            compressSection.style.display = 'none';
+            decompressSection.style.display = 'block';
+            currentCycleValue.textContent = `Descompressão ${currentCycle}`;
+            
+            // Resetar a barra de descompressão para 100% quando entrar no modo
+            stretchSlider.value = 100;
+            stretchValue.textContent = '100';
+            if (stretchedImage) {
+                updateStretchedImage(100);
+            }
+        });
+
+        // Toggle do painel de informações
+        infoToggle.addEventListener('click', function() {
+            infoPanel.classList.toggle('active');
+            infoToggle.textContent = infoPanel.classList.contains('active') ? 'fechar' : 'informações';
+        });
+
+        // Prensa de Compressão
+        pressureSlider.addEventListener('input', function() {
+            const pressure = parseInt(this.value);
+            pressureValue.textContent = pressure;
+            updateImage(pressure);
+            
+            // Habilitar/desabilitar botão de descompressão
+            decompressBtn.disabled = pressure < 100;
+        });
+
+        copyBtn.addEventListener('click', function() {
+            navigator.clipboard.writeText(compressedBase64).then(() => {
+                copyBtn.textContent = '✓ copiado';
+                copyBtn.classList.add('copied');
+                setTimeout(() => {
+                    copyBtn.textContent = 'copiar';
+                    copyBtn.classList.remove('copied');
+                }, 2000);
+            });
+        });
+
+        // Botão de descompressão
+        decompressBtn.addEventListener('click', function() {
+            if (compressedBase64) {
+                // Salvar o Base64 para uso posterior
+                lastCompressedBase64 = compressedBase64;
+                
+                // Incrementar ciclo
+                currentCycle++;
+                decompressCycle++;
+                decompressCycleEl.textContent = decompressCycle;
+                currentCycleValue.textContent = `Descompressão ${currentCycle}`;
+                
+                // Mudar para o modo de descompressão
+                decompressMode.click();
+                
+                // Colar o Base64 no campo
+                base64Input.value = compressedBase64;
+                
+                // Disparar o evento de input para carregar a imagem
+                const event = new Event('input', { bubbles: true });
+                base64Input.dispatchEvent(event);
+            }
+        });
+
+        // Botão para comprimir novamente
+        compressAgainBtn.addEventListener('click', function() {
+            if (stretchedImageDisplay.src) {
+                // Incrementar ciclo
+                currentCycle++;
+                compressCycle++;
+                compressCycleEl.textContent = compressCycle;
+                currentCycleValue.textContent = `Compressão ${currentCycle}`;
+                
+                // Voltar para o modo de compressão
+                compressMode.click();
+                
+                // Criar uma nova imagem a partir da imagem esticada
+                const newImage = new Image();
+                newImage.crossOrigin = "anonymous";
+                newImage.onload = function() {
+                    // Substituir a imagem original pela imagem esticada
+                    originalImage = newImage;
+                    originalFileName = "Imagem Degradada";
+                    originalFileSize = 0;
+                    fileTypeValueEl.textContent = 'image/jpeg';
+                    dimensionsValueEl.textContent = `${originalImage.width} × ${originalImage.height}px`;
+                    
+                    // Resetar a interface
+                    updateImage(0);
+                    pressureSlider.value = 0;
+                    pressureValue.textContent = '0';
+                    pressTop.style.transform = 'translateY(0px)';
+                    pressBottom.style.transform = 'translateY(0px)';
+                    
+                    // Desmarcar qualquer imagem selecionada na galeria
+                    if (currentGalleryItem) {
+                        currentGalleryItem.classList.remove('active');
+                        currentGalleryItem = null;
+                    }
+                    
+                    // Desabilitar botão de descompressão
+                    decompressBtn.disabled = true;
+                };
+                newImage.src = stretchedImageDisplay.src;
+            }
+        });
+
+        function updateImage(pressure) {
+            if (!originalImage) return;
+
+            // Calcular altura visual e alinhar movimento das chapas aos limites da imagem
+            const baselineHeight = 250;
+            const imageHeight = Math.max(10, baselineHeight * (1 - (pressure / 100) * 0.8));
+            const edgeShift = (baselineHeight - imageHeight) / 2; // metade da variação para cada chapa
+            pressTop.style.transform = `translateY(${edgeShift}px)`;
+            pressBottom.style.transform = `translateY(-${edgeShift}px)`;
+
+            // Qualidade diminui mais rapidamente - começa a cair imediatamente
+            // A qualidade base diminui a cada ciclo
+            const baseQuality = Math.max(0.05, 1 - (compressCycle - 1) * 0.2);
+            const quality = Math.max(0.05, baseQuality - (pressure / 100) * baseQuality * 1.5);
+            qualityValueEl.textContent = (quality * 100).toFixed(1) + '%';
+
+            // Aplicar altura visual e atualizar painel
+            imageDisplay.style.height = imageHeight + 'px';
+            heightValueEl.textContent = imageHeight.toFixed(0) + 'px';
+
+            if (pressure === 100) {
+                imageDisplay.style.display = 'none';
+                base64Wrapper.classList.add('active');
+                base64Display.textContent = compressedBase64;
+                outputResValueEl.textContent = `${originalImage.width} × ${Math.max(1, Math.floor(originalImage.height * 0.05))}px`;
+            } else {
+                imageDisplay.style.display = 'block';
+                base64Wrapper.classList.remove('active');
+
+                const canvas = document.createElement('canvas');
+                const ctx = canvas.getContext('2d');
+                
+                const originalWidth = originalImage.width;
+                const originalHeight = originalImage.height;
+
+                // Manter a largura original, apenas comprimir a altura
+                // A compressão de altura aumenta a cada ciclo
+                const heightReductionBase = 0.95 + (compressCycle - 1) * 0.05;
+                const heightReduction = pressure / 100;
+                const newHeight = Math.max(1, Math.floor(originalHeight * (1 - heightReduction * Math.min(0.99, heightReductionBase))));
+                
+                canvas.width = originalWidth;
+                canvas.height = newHeight;
+
+                // Desenhar a imagem com a nova altura (mantém largura original)
+                ctx.drawImage(originalImage, 0, 0, originalWidth, newHeight);
+
+                // Aplicar compressão JPEG com qualidade decrescente mais rápida
+                const compressedDataUrl = canvas.toDataURL('image/jpeg', quality);
+                imageDisplay.src = compressedDataUrl;
+                
+                // Atualizar informações de tamanho
+                const base64Size = compressedDataUrl.length;
+                const fileSizeKB = (base64Size / 1024).toFixed(2);
+                sizeValueEl.textContent = fileSizeKB + ' KB';
+                
+                // Calcular porcentagem de compressão
+                const compressionPercent = originalFileSize > 0 ? 
+                    ((1 - base64Size / (originalFileSize * 1.33)) * 100).toFixed(1) : 
+                    '—';
+                compressionValueEl.textContent = compressionPercent + '%';
+
+                outputResValueEl.textContent = `${originalWidth} × ${newHeight}px`;
+                
+                // Salvar o Base64 para quando chegar a 100%
+                if (pressure >= 95) {
+                    compressedBase64 = compressedDataUrl;
+                }
+            }
+
+            // Caso especial para 100% de pressão
+            if (pressure === 100) {
+                const canvas = document.createElement('canvas');
+                const ctx = canvas.getContext('2d');
+                
+                canvas.width = originalImage.width;
+                canvas.height = Math.max(1, Math.floor(originalImage.height * 0.05));
+                
+                // Desenhar a imagem com altura mínima
+                ctx.drawImage(originalImage, 0, 0, originalImage.width, Math.max(1, Math.floor(originalImage.height * 0.05)));
+
+                // Compressão máxima (qualidade 0.05)
+                compressedBase64 = canvas.toDataURL('image/jpeg', 0.05);
+                base64Display.textContent = compressedBase64;
+                
+                const base64Size = compressedBase64.length;
+                const fileSizeKB = (base64Size / 1024).toFixed(2);
+                sizeValueEl.textContent = fileSizeKB + ' KB';
+                
+                const compressionPercent = originalFileSize > 0 ? 
+                    ((1 - base64Size / (originalFileSize * 1.33)) * 100).toFixed(1) : 
+                    '—';
+                compressionValueEl.textContent = compressionPercent + '%';
+
+                qualityValueEl.textContent = '5.0%';
+                outputResValueEl.textContent = `${originalImage.width} × ${Math.max(1, Math.floor(originalImage.height * 0.05))}px`;
+            }
+        }
+
+        // Prensa Reversa (Descompressão)
+        base64Input.addEventListener('input', function() {
+            const base64String = base64Input.value.trim();
+            
+            if (!base64String) return;
+
+            try {
+                // Verificar se é um Base64 válido de imagem
+                let imageSrc = base64String;
+                if (!base64String.startsWith('data:image/')) {
+                    imageSrc = 'data:image/jpeg;base64,' + base64String;
+                }
+
+                stretchedImage = new Image();
+                stretchedImage.onload = function() {
+                    stretchedImageDisplay.src = imageSrc;
+                    originalStretchedHeight = stretchedImage.height;
+                    originalHeightValue.textContent = originalStretchedHeight + 'px';
+                    updateStretchedImage(100); // Começar com 100%
+                };
+                stretchedImage.onerror = function() {
+                    alert('Base64 inválido ou formato de imagem não suportado.');
+                };
+                stretchedImage.src = imageSrc;
+            } catch (error) {
+                alert('Erro ao carregar imagem: ' + error.message);
+            }
+        });
+
+        stretchSlider.addEventListener('input', function() {
+            const stretch = parseInt(this.value);
+            stretchValue.textContent = stretch;
+            updateStretchedImage(stretch);
+        });
+
+        downloadBtn.addEventListener('click', function() {
+            if (!stretchedImageDisplay.src) {
+                alert('Nenhuma imagem para baixar.');
+                return;
+            }
+
+            const link = document.createElement('a');
+            link.download = 'imagem_esticada.jpg';
+            link.href = stretchedImageDisplay.src;
+            link.click();
+        });
+
+        function updateStretchedImage(stretch) {
+            if (!stretchedImage) return;
+
+            // Altura visual esticada e movimento das chapas começando do centro e indo para fora
+            const baselineHeight = 250;
+            const visualHeight = Math.min(500, baselineHeight + ((100 - stretch) / 100) * baselineHeight);
+            const t = (100 - stretch) / 100; // 0 (centro) -> 1 (bordas)
+            const centerTop = baselineHeight / 2;      // posição para começar no centro
+            const centerBottom = -baselineHeight / 2;  // posição para começar no centro
+            const edgeShift = (baselineHeight - visualHeight) / 2; // negativo quando expande
+            const topTransform = centerTop + t * (edgeShift - centerTop);
+            const bottomTransform = centerBottom + t * (-edgeShift - centerBottom);
+            // Evitar que as chapas saiam da caixa principal (press-wrapper): limitar deslocamento para fora
+            const MAX_OUTWARD = 28; // ligeiramente menor que o padding (30px) para parar antes da borda
+            const topTransformClamped = Math.max(topTransform, -MAX_OUTWARD);
+            const bottomTransformClamped = Math.min(bottomTransform, MAX_OUTWARD);
+            reversePressTop.style.transform = `translateY(${topTransformClamped}px)`;
+            reversePressBottom.style.transform = `translateY(${bottomTransformClamped}px)`;
+
+            // Calcular nova altura baseada no fator de esticamento
+            // Agora: 100% = altura original, 0% = altura máxima esticada
+            const stretchFactor = 1 + ((100 - stretch) / 100) * 19; // De 1x a 20x
+            const newHeight = Math.floor(originalStretchedHeight * stretchFactor);
+            
+            // Altura da visualização seguindo o cálculo acima
+            stretchedImageDisplay.style.height = visualHeight + 'px';
+            stretchedHeightValue.textContent = newHeight + 'px';
+            stretchFactorValue.textContent = stretchFactor.toFixed(1) + 'x';
+
+            // A qualidade da imagem esticada diminui conforme vamos para a esquerda (0%)
+            // 100% = melhor qualidade, 0% = pior qualidade
+            const stretchQuality = Math.max(0.1, 0.9 - (decompressCycle - 1) * 0.2);
+            const currentQuality = Math.max(0.05, stretchQuality - ((100 - stretch) / 100) * 0.5);
+            stretchQualityValue.textContent = (currentQuality * 100).toFixed(1) + '%';
+
+            // Criar canvas para redimensionar a imagem
+            const canvas = document.createElement('canvas');
+            const ctx = canvas.getContext('2d');
+            
+            canvas.width = stretchedImage.width;
+            canvas.height = newHeight;
+
+            // Aplicar efeitos de degradação progressiva
+            ctx.drawImage(stretchedImage, 0, 0, stretchedImage.width, newHeight);
+            
+            // Aplicar mais degradação visual conforme vamos para a esquerda (0%)
+            // e conforme o ciclo aumenta
+            const degradationLevel = (100 - stretch) / 100;
+            
+            if (decompressCycle > 1 || degradationLevel > 0) {
+                // Adicionar ruído - mais intenso conforme vamos para a esquerda
+                const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+                const data = imageData.data;
+                const noiseIntensity = Math.min(50, (decompressCycle - 1) * 15 + degradationLevel * 30);
+                
+                for (let i = 0; i < data.length; i += 4) {
+                    const noise = (Math.random() - 0.5) * noiseIntensity;
+                    data[i] = Math.max(0, Math.min(255, data[i] + noise));     // R
+                    data[i + 1] = Math.max(0, Math.min(255, data[i + 1] + noise)); // G
+                    data[i + 2] = Math.max(0, Math.min(255, data[i + 2] + noise)); // B
+                }
+                ctx.putImageData(imageData, 0, 0);
+                
+                // Reduzir saturação - mais intenso conforme vamos para a esquerda
+                if (decompressCycle >= 2 || degradationLevel > 0.3) {
+                    ctx.globalCompositeOperation = 'saturation';
+                    ctx.fillStyle = `rgba(255,255,255,${0.3 * (decompressCycle - 1) + degradationLevel * 0.4})`;
+                    ctx.fillRect(0, 0, canvas.width, canvas.height);
+                    ctx.globalCompositeOperation = 'source-over';
+                }
+
+                // Adicionar blur progressivo
+                if (degradationLevel > 0.5) {
+                    ctx.filter = `blur(${degradationLevel * 2}px)`;
+                    ctx.drawImage(canvas, 0, 0);
+                    ctx.filter = 'none';
+                }
+            }
+            
+            // Atualizar a imagem exibida com qualidade reduzida
+            stretchedImageDisplay.src = canvas.toDataURL('image/jpeg', currentQuality);
+        }
+
+        // Inicializar a galeria quando a página carregar
+        window.addEventListener('DOMContentLoaded', initImageGallery);
+    </script>
+</body>
+</html>
